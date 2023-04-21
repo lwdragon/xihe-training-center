@@ -29,6 +29,10 @@ var (
 		"Completed":  true,
 		"Terminated": true,
 	}
+
+	customizeVersionSet = map[string]string{
+		"mindspore_1.9.0-cann_6.0.RC1-py_3.7-ubuntu_18.04-amd64": "xihe-image/mindspore-ascend-ubuntu-aarch64:1.9.0-cann6.0.RC1",
+	}
 )
 
 // Account
@@ -103,6 +107,7 @@ func (r trainingDesc) TrainingDesc() string {
 // Directory
 type Directory interface {
 	Directory() string
+	LastDirectory() string
 }
 
 func NewDirectory(v string) (Directory, error) {
@@ -121,6 +126,12 @@ type directory string
 
 func (r directory) Directory() string {
 	return string(r)
+}
+
+func (r directory) LastDirectory() string {
+	s := strings.TrimRight(string(r), "/")
+	splitDir := strings.Split(s, "/")
+	return splitDir[len(splitDir)-1]
 }
 
 // FilePath
@@ -168,6 +179,7 @@ func (r computeType) ComputeType() string {
 // ComputeVersion
 type ComputeVersion interface {
 	ComputeVersion() string
+	ComputeImage() string
 }
 
 func NewComputeVersion(v string) (ComputeVersion, error) {
@@ -182,6 +194,14 @@ type computeVersion string
 
 func (r computeVersion) ComputeVersion() string {
 	return string(r)
+}
+
+// 判断是否是自定义镜像, 并返回IMAGE_URL
+func (r computeVersion) ComputeImage() string {
+	if v, ok := customizeVersionSet[string(r)]; ok {
+		return v
+	}
+	return ""
 }
 
 // ComputeFlavor

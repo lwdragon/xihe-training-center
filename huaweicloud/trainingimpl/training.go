@@ -153,6 +153,11 @@ func (impl trainingImpl) Create(t *domain.UserTraining) (info domain.JobInfo, er
 		})
 	}
 
+	bootFile := filepath.Join(obs, t.CodeDir.Directory(), t.BootFile.FilePath())
+	if t.IsCustomizeImageTraining() {
+		bootFile = ""
+	}
+
 	opt := modelarts.JobCreateOption{
 		Kind: "job",
 		Metadata: modelarts.MetadataOption{
@@ -161,10 +166,12 @@ func (impl trainingImpl) Create(t *domain.UserTraining) (info domain.JobInfo, er
 		},
 		Algorithm: modelarts.AlgorithmOption{
 			CodeDir:  filepath.Join(obs, t.CodeDir.Directory()) + obsDelimiter,
-			BootFile: filepath.Join(obs, t.CodeDir.Directory(), t.BootFile.FilePath()),
+			BootFile: bootFile,
+			Command:  t.DefaultCommand(),
 			Engine: modelarts.EngineOption{
 				EngineName:    t.Compute.Type.ComputeType(),
 				EngineVersion: t.Compute.Version.ComputeVersion(),
+				ImageURL:      t.Compute.Version.ComputeImage(),
 			},
 			Outputs: outputs,
 		},

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"path/filepath"
 )
 
@@ -77,4 +78,31 @@ type JobInfo struct {
 	LogDir    string `json:"log_dir"`
 	AimDir    string `json:"aim_dir"`
 	OutputDir string `json:"output_dir"`
+}
+
+func (t *TrainingConfig) IsCustomizeImageTraining() bool {
+	return t.Compute.Version.ComputeImage() != ""
+}
+
+func (t *TrainingConfig) DefaultCommand() string {
+	if t.IsCustomizeImageTraining() {
+		lastDirectory := t.CodeDir.LastDirectory()
+		filePath := t.BootFile.FilePath()
+		depencyFile := filepath.Join(filepath.Dir(filePath), "pip-requirements.txt")
+
+		command := fmt.Sprintf("pip install -r ${MA_JOB_DIR}/%s/%s "+
+			"&& cd ${MA_JOB_DIR} "+
+			"&& echo Current WorkDir: $(pwd) "+
+			"&& python ${MA_JOB_DIR}/%s/%s", lastDirectory, depencyFile, lastDirectory, filePath)
+
+		return command
+	}
+	return ""
+}
+
+func (t *TrainingConfig) DeafultBootFile() string {
+	if t.IsCustomizeImageTraining() {
+		return ""
+	}
+	return t.BootFile.FilePath()
 }

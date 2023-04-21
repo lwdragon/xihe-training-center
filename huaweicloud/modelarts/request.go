@@ -21,6 +21,7 @@ type MetadataOption struct {
 type AlgorithmOption struct {
 	CodeDir      string              `json:"code_dir"`
 	BootFile     string              `json:"boot_file"`
+	Command      string              `json:"command"`
 	Engine       EngineOption        `json:"engine"`
 	Parameters   []ParameterOption   `json:"parameters"`
 	Environments map[string]string   `json:"environments"`
@@ -31,6 +32,7 @@ type AlgorithmOption struct {
 type EngineOption struct {
 	EngineName    string `json:"engine_name"`
 	EngineVersion string `json:"engine_version"`
+	ImageURL      string `json:"image_url"`
 }
 
 type ParameterOption struct {
